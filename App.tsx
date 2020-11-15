@@ -6,15 +6,13 @@
  * @flow strict-local
  */
 
-import React, {useCallback, useState} from 'react';
+import React, {useState} from 'react';
 import {
   Animated,
-  Dimensions,
-  SafeAreaView,
+  PanResponder,
   StatusBar,
   StyleSheet,
   Text,
-  TouchableOpacity,
 } from 'react-native';
 
 const styles = StyleSheet.create({
@@ -22,6 +20,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    flex: 1,
   },
   animatedViewStyle: {
     justifyContent: 'center',
@@ -36,37 +35,51 @@ const styles = StyleSheet.create({
 });
 
 const App = () => {
-  const value = useState(new Animated.ValueXY({x: 0, y: 0}))[0];
-  const moveBall = useCallback(() => {
-    Animated.spring(value, {
-      toValue: {
-        x: Math.random() * (Dimensions.get('screen').width - 100),
-        y: Math.random() * (Dimensions.get('screen').height - 100),
+  const pan = useState(new Animated.ValueXY({x: 0, y: 0}))[0];
+  const location = useState(new Animated.ValueXY({x: 0, y: 0}))[0];
+  const panResponder = useState(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        pan.setOffset({
+          x: pan.x._value,
+          y: pan.y._value,
+        });
       },
-      speed: 40,
-      useNativeDriver: true,
-    }).start();
-  }, [value]);
+      onPanResponderMove: (_, gesture) => {
+        pan.x.setValue(gesture.dx);
+        pan.y.setValue(gesture.dy);
+      },
+      onPanResponderRelease: () => {
+        pan.flattenOffset();
+        Animated.spring(location, {
+          toValue: {
+            x: pan.x._value,
+            y: pan.y._value,
+          },
+          speed: 40,
+          useNativeDriver: true,
+        }).start();
+      },
+    }),
+  )[0];
 
   return (
     <>
       <StatusBar barStyle="dark-content" />
-      <SafeAreaView style={styles.safeAreaViewStyle}>
-        <TouchableOpacity onPress={moveBall}>
-          <Animated.View
-            style={[
-              styles.animatedViewStyle,
-              {
-                transform: [
-                  {translateX: value.getLayout().left},
-                  {translateY: value.getLayout().top},
-                ],
-              },
-            ]}>
-            <Text style={styles.textViewStyle}>click me</Text>
-          </Animated.View>
-        </TouchableOpacity>
-      </SafeAreaView>
+      <Animated.View
+        style={styles.safeAreaViewStyle}
+        {...panResponder.panHandlers}>
+        <Animated.View
+          style={[
+            styles.animatedViewStyle,
+            {
+              transform: [{translateX: location.x}, {translateY: location.y}],
+            },
+          ]}>
+          <Text style={styles.textViewStyle}>Swipe outside</Text>
+        </Animated.View>
+      </Animated.View>
     </>
   );
 };
