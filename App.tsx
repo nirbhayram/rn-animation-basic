@@ -12,9 +12,28 @@ import {
   Dimensions,
   SafeAreaView,
   StatusBar,
+  StyleSheet,
   Text,
   TouchableOpacity,
 } from 'react-native';
+
+const styles = StyleSheet.create({
+  safeAreaViewStyle: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  animatedViewStyle: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'red',
+    height: 100,
+    width: 100,
+    borderRadius: 100 / 2,
+    position: 'absolute',
+  },
+  textViewStyle: {color: 'white'},
+});
 
 const App = () => {
   const value = useState(new Animated.ValueXY({x: 0, y: 0}))[0];
@@ -28,33 +47,23 @@ const App = () => {
       useNativeDriver: true,
     }).start();
   }, [value]);
+
   return (
     <>
       <StatusBar barStyle="dark-content" />
-      <SafeAreaView
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}>
+      <SafeAreaView style={styles.safeAreaViewStyle}>
         <TouchableOpacity onPress={moveBall}>
           <Animated.View
             style={[
+              styles.animatedViewStyle,
               {
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: 'red',
-                height: 100,
-                width: 100,
-                borderRadius: 100 / 2,
-                position: 'absolute',
                 transform: [
                   {translateX: value.getLayout().left},
                   {translateY: value.getLayout().top},
                 ],
               },
             ]}>
-            <Text style={{color: 'white'}}>click me</Text>
+            <Text style={styles.textViewStyle}>click me</Text>
           </Animated.View>
         </TouchableOpacity>
       </SafeAreaView>
