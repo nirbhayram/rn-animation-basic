@@ -1,5 +1,7 @@
 package com.practise;
 
+import com.facebook.react.bridge.JSIModulePackage; // <- add
+import com.swmansion.reanimated.ReanimatedJSIModulePackage; // <- add
 import com.facebook.react.ReactActivity;
 
 public class MainActivity extends ReactActivity {
@@ -11,5 +13,9 @@ public class MainActivity extends ReactActivity {
   @Override
   protected String getMainComponentName() {
     return "practise";
+  }
+  @Override
+  protected JSIModulePackage getJSIModulePackage() {
+    return new ReanimatedJSIModulePackage(); // <- add
   }
 }
